@@ -1,3 +1,6 @@
 .metals
 .scala-build
 .vscode
+web-scrapping/.bsp
+web-scrapping/project
+web-scrapping/target
