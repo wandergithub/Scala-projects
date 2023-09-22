@@ -1,0 +1,4 @@
+[0m[[0m[31merror[0m] [0m[0m/home/wander/personal/Scala-projects/6.RESTFUL-API/src/main/scala/myAPI/myAPI.scala:17:45: value text/html(UTF-8) is not a member of object akka.http.scaladsl.model.ContentType[0m
+[0m[[0m[31merror[0m] [0m[0m            complete(HttpEntity(ContentType.`text/html(UTF-8)`,"<h1>Say hello to akka-http</h1>"))[0m
+[0m[[0m[31merror[0m] [0m[0m                                            ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m
