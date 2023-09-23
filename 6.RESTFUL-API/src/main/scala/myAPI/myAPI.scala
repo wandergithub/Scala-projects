@@ -8,22 +8,43 @@ import akka.http.scaladsl.model.HttpMethods._
 import scala.io.StdIn
 
 import scala.concurrent.ExecutionContext
+import scala.collection.mutable.ArrayBuffer
+import io.circe.syntax._
+import akka.util.ByteString
 
 
 object myAPI extends App {
     implicit val system = ActorSystem(Behaviors.empty, "my-lowlevel-system")
     implicit val executionContext: ExecutionContext = system.executionContext
 
+    val taskList = ArrayBuffer[String]()
 
     val requestHandler: HttpRequest => HttpResponse = {
-        case HttpRequest(GET, Uri.Path("/"), _, _, _) =>
-            HttpResponse(entity = HttpEntity(
-                ContentTypes.`text/html(UFT-8)`,
-                "<html><body>Hello world!</body></html>"
-            ))
         
-        case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
-        HttpResponse(entity = "PONG!")
+        case HttpRequest(GET, Uri.Path("/tasks"), _, _, _) => {
+            val json = taskList.asJson.noSpaces
+            HttpResponse(StatusCodes.OK, entity = HttpEntity(
+                ContentTypes.`application/json`,
+                json
+            )) 
+        }
+               
+        case HttpRequest(PUT, uri, _, _, _) if uri.path.toString == "/tasks" => {
+            val queryParams = uri.query()
+
+            val task: String = queryParams.getOrElse("task", "")
+
+            task match { 
+                case "" => HttpResponse(400)
+                case task: String => 
+                    taskList += task
+                    HttpResponse(StatusCodes.OK, entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        taskList.asJson.noSpaces
+                    ))
+
+            }   
+        }
 
         case HttpRequest(GET, Uri.Path("/crash"), _, _, _) =>
         sys.error("BOOM!")
