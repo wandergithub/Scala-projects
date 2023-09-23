@@ -21,7 +21,7 @@ object myAPI extends App {
 
     val requestHandler: HttpRequest => HttpResponse = {
         
-        case HttpRequest(GET, Uri.Path("/tasks"), _, _, _) => {
+        case HttpRequest(GET, Uri.Path("/task"), _, _, _) => {
             val json = taskList.asJson.noSpaces
             HttpResponse(StatusCodes.OK, entity = HttpEntity(
                 ContentTypes.`application/json`,
@@ -29,7 +29,7 @@ object myAPI extends App {
             )) 
         }
                
-        case HttpRequest(PUT, uri, _, _, _) if uri.path.toString == "/tasks" => {
+        case HttpRequest(PUT, uri, _, _, _) if uri.path.toString == "/task" => {
             val queryParams = uri.query()
 
             val task: String = queryParams.getOrElse("task", "")
@@ -38,6 +38,43 @@ object myAPI extends App {
                 case "" => HttpResponse(400)
                 case task: String => 
                     taskList += task
+                    HttpResponse(StatusCodes.OK, entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        taskList.asJson.noSpaces
+                    ))
+
+            }   
+        }
+
+        case HttpRequest(PATCH, uri, _, _, _) if uri.path.toString == "/task" => {
+            val queryParams = uri.query()
+
+            val task: String = queryParams.getOrElse("task", "")
+            val newTask: String = queryParams.getOrElse("newTask", "")
+
+            taskList.contains(task) match { 
+                case false => HttpResponse(400)
+                case true => 
+                    taskList(taskList.indexOf(task)) = newTask
+
+                    HttpResponse(StatusCodes.OK, entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        taskList.asJson.noSpaces
+                    ))
+
+            }   
+        }
+
+        case HttpRequest(DELETE, uri, _, _, _) if uri.path.toString == "/task" => {
+            val queryParams = uri.query()
+
+            val task: String = queryParams.getOrElse("task", "")
+
+            taskList.contains(task) match { 
+                case false => HttpResponse(400)
+                case true => 
+                    taskList -= task
+
                     HttpResponse(StatusCodes.OK, entity = HttpEntity(
                         ContentTypes.`application/json`,
                         taskList.asJson.noSpaces
